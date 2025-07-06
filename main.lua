@@ -4,36 +4,23 @@ Input = require 'libraries/boipushy/Input'
 fn = require 'libraries/moses/moses'
 Camera = require 'libraries/hump/camera'
 Physics = require 'libraries/windfield'
+Vector = require 'libraries/hump/vector'
+draft = require('libraries/draft/draft')()
 
+require 'libraries/utf8'
 require 'GameObject'
 require 'utils'
-
-local console = require "console"
-love.keyboard.setKeyRepeat(true)
-
-local rectangle = {
-  x = 100, y = 100,
-  width = 100, height = 100,
-  r = 1, g = 1, b = 1
-}
-console.ENV.rectangle = rectangle
-
-function love.keypressed(key, scancode, isrepeat)
-  console.keypressed(key, scancode, isrepeat)
-end
-
-function love.textinput(text)
-  console.textinput(text)
-end
-
+require 'globals'
 
 function love.load()
-
     time = 0
+    SP = 0
 
     love.graphics.setDefaultFilter('nearest', 'nearest')
     love.graphics.setLineStyle('rough')
+    love.graphics.setBackgroundColor(background_color)
 
+    loadFonts('resources/fonts')
     local object_files = {}
     recursiveEnumerate('objects', object_files)
     requireFiles(object_files)
@@ -63,31 +50,49 @@ function love.load()
     end)
     input:bind('left', 'left')
     input:bind('right', 'right')
+    input:bind('up', 'up')
+    input:bind('down', 'down')
 
     current_room = nil
     gotoRoom('Stage')
 
     resize(2)
+
+    slow_amount = 1
 end
 
 function love.update(dt)
-    timer:update(dt)
-    camera:update(dt)
-    if current_room then current_room:update(dt) end
+    timer:update(dt*slow_amount)
+    camera:update(dt*slow_amount)
+    if current_room then current_room:update(dt*slow_amount) end
 end
 
 function love.draw()
-
     if current_room then current_room:draw() end
-    love.graphics.setColor(rectangle.r, rectangle.g, rectangle.b, 1)
-    love.graphics.rectangle("fill", rectangle.x, rectangle.y,
-    rectangle.width, rectangle.height)
-    console.draw()
+
+    if flash_frames then 
+        flash_frames = flash_frames - 1
+        if flash_frames == -1 then flash_frames = nil end
+    end
+    if flash_frames then
+        love.graphics.setColor(background_color)
+        love.graphics.rectangle('fill', 0, 0, sx*gw, sy*gh)
+        love.graphics.setColor(255, 255, 255)
+    end
 end
 
 function resize(s)
     love.window.setMode(s*gw, s*gh) 
     sx, sy = s, s
+end
+
+function flash(frames)
+    flash_frames = frames
+end
+
+function slow(amount, duration)
+    slow_amount = amount
+    timer:tween('slow', duration, _G, {slow_amount = 1}, 'in-out-cubic')
 end
 
 -- Room --
@@ -115,6 +120,22 @@ function requireFiles(files)
         require(file)
     end
 end
+
+function loadFonts(path)
+    fonts = {}
+    local font_paths = {}
+    recursiveEnumerate(path, font_paths)
+    for i = 8, 16, 1 do
+        for _, font_path in pairs(font_paths) do
+            local last_forward_slash_index = font_path:find("/[^/]*$")
+            local font_name = font_path:sub(last_forward_slash_index+1, -5)
+            local font = love.graphics.newFont(font_path, i)
+            font:setFilter('nearest', 'nearest')
+            fonts[font_name .. '_' .. i] = font
+        end
+    end
+end
+
 
 -- Memory --
 function count_all(f)
@@ -200,6 +221,3 @@ function love.run()
         if love.timer then love.timer.sleep(0.0001) end
     end
 end
-
-
-

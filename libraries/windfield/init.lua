@@ -350,11 +350,10 @@ end
 
 function World.collisionOnEnter(fixture_a, fixture_b, contact)
     local a, b = fixture_a:getUserData(), fixture_b:getUserData()
-    local world = a.world
 
     if fixture_a:isSensor() and fixture_b:isSensor() then
         if a and b then
-            for _, collision in ipairs(world.collisions.on_enter.sensor) do
+            for _, collision in ipairs(a.world.collisions.on_enter.sensor) do
                 if collIf(collision.type1, collision.type2, a, b) then
                     a, b = collEnsure(collision.type1, a, collision.type2, b)
                     table.insert(a.collision_events[collision.type2], {collision_type = 'enter', collider_1 = a, collider_2 = b, contact = contact})
@@ -367,7 +366,7 @@ function World.collisionOnEnter(fixture_a, fixture_b, contact)
 
     elseif not (fixture_a:isSensor() or fixture_b:isSensor()) then
         if a and b then
-            for _, collision in ipairs(world.collisions.on_enter.non_sensor) do
+            for _, collision in ipairs(a.world.collisions.on_enter.non_sensor) do
                 if collIf(collision.type1, collision.type2, a, b) then
                     a, b = collEnsure(collision.type1, a, collision.type2, b)
                     table.insert(a.collision_events[collision.type2], {collision_type = 'enter', collider_1 = a, collider_2 = b, contact = contact})
@@ -382,11 +381,10 @@ end
 
 function World.collisionOnExit(fixture_a, fixture_b, contact)
     local a, b = fixture_a:getUserData(), fixture_b:getUserData()
-    local world = a.world
 
     if fixture_a:isSensor() and fixture_b:isSensor() then
         if a and b then
-            for _, collision in ipairs(world.collisions.on_exit.sensor) do
+            for _, collision in ipairs(a.world.collisions.on_exit.sensor) do
                 if collIf(collision.type1, collision.type2, a, b) then
                     a, b = collEnsure(collision.type1, a, collision.type2, b)
                     table.insert(a.collision_events[collision.type2], {collision_type = 'exit', collider_1 = a, collider_2 = b, contact = contact})
@@ -399,7 +397,7 @@ function World.collisionOnExit(fixture_a, fixture_b, contact)
 
     elseif not (fixture_a:isSensor() or fixture_b:isSensor()) then
         if a and b then
-            for _, collision in ipairs(world.collisions.on_exit.non_sensor) do
+            for _, collision in ipairs(a.world.collisions.on_exit.non_sensor) do
                 if collIf(collision.type1, collision.type2, a, b) then
                     a, b = collEnsure(collision.type1, a, collision.type2, b)
                     table.insert(a.collision_events[collision.type2], {collision_type = 'exit', collider_1 = a, collider_2 = b, contact = contact})
@@ -414,11 +412,10 @@ end
 
 function World.collisionPre(fixture_a, fixture_b, contact)
     local a, b = fixture_a:getUserData(), fixture_b:getUserData()
-    local world = a.world
 
     if fixture_a:isSensor() and fixture_b:isSensor() then
         if a and b then
-            for _, collision in ipairs(world.collisions.pre.sensor) do
+            for _, collision in ipairs(a.world.collisions.pre.sensor) do
                 if collIf(collision.type1, collision.type2, a, b) then
                     a, b = collEnsure(collision.type1, a, collision.type2, b)
                     a:preSolve(b, contact)
@@ -431,7 +428,7 @@ function World.collisionPre(fixture_a, fixture_b, contact)
 
     elseif not (fixture_a:isSensor() or fixture_b:isSensor()) then
         if a and b then
-            for _, collision in ipairs(world.collisions.pre.non_sensor) do
+            for _, collision in ipairs(a.world.collisions.pre.non_sensor) do
                 if collIf(collision.type1, collision.type2, a, b) then
                     a, b = collEnsure(collision.type1, a, collision.type2, b)
                     a:preSolve(b, contact)
@@ -446,11 +443,10 @@ end
 
 function World.collisionPost(fixture_a, fixture_b, contact, ni1, ti1, ni2, ti2)
     local a, b = fixture_a:getUserData(), fixture_b:getUserData()
-    local world = a.world
 
     if fixture_a:isSensor() and fixture_b:isSensor() then
         if a and b then
-            for _, collision in ipairs(world.collisions.post.sensor) do
+            for _, collision in ipairs(a.world.collisions.post.sensor) do
                 if collIf(collision.type1, collision.type2, a, b) then
                     a, b = collEnsure(collision.type1, a, collision.type2, b)
                     a:postSolve(b, contact, ni1, ti1, ni2, ti2)
@@ -463,7 +459,7 @@ function World.collisionPost(fixture_a, fixture_b, contact, ni1, ti1, ni2, ti2)
 
     elseif not (fixture_a:isSensor() or fixture_b:isSensor()) then
         if a and b then
-            for _, collision in ipairs(world.collisions.post.non_sensor) do
+            for _, collision in ipairs(a.world.collisions.post.non_sensor) do
                 if collIf(collision.type1, collision.type2, a, b) then
                     a, b = collEnsure(collision.type1, a, collision.type2, b)
                     a:postSolve(b, contact, ni1, ti1, ni2, ti2)

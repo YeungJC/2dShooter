@@ -10,6 +10,7 @@ function GameObject:new(area, x, y, opts)
     self.creation_time = love.timer.getTime()
     self.timer = Timer()
     self.dead = false
+    self.depth = 50
 end
 
 function GameObject:update(dt)
@@ -26,3 +27,4 @@ function GameObject:destroy()
     if self.collider then self.collider:destroy() end
     self.collider = nil
 end
+
