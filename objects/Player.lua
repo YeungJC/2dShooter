@@ -16,10 +16,20 @@ function Player:new(area, x, y, opts)
     self.max_v = self.base_max_v
     self.a = 100
     self.sp = 0
+    self.cycle_time = 0
+    self.timer:every(5, function() 
+        self:tick()
+        self.cycle_time = 0
 
-    self.timer:every(5, function() self:tick() end)
+     end)
+    
+    self.timer:every(0.1, function() 
+       self.cycle_time = self.cycle_time + 0.1
+       
+    end)
 
     -- Boost
+    self.boost_multiplier = 1
     self.max_boost = 100
     self.boost = self.max_boost
     self.boosting = false
@@ -28,20 +38,22 @@ function Player:new(area, x, y, opts)
     self.boost_cooldown = 2
 
     -- HP
+    self.hp_multiplier = 1
     self.max_hp = 100
     self.hp = self.max_hp
 
     -- Ammo
+    self.ammo_multiplier = 1
     self.max_ammo = 100
     self.ammo = self.max_ammo
 
     -- Attacks
     self.shoot_timer = 0
     self.shoot_cooldown = 0.24
-    self:setAttack('Rapid')
+    self:setAttack('Neutral')
 
     -- Ship visuals
-    self.ship = 'Fighter'
+    self.ship = 'Striker'
     self.polygons = {}
     if self.ship == 'Fighter' then
         self.polygons[1] = {
@@ -126,6 +138,8 @@ function Player:new(area, x, y, opts)
             {parent = self, r = random(2, 4), d = random(0.15, 0.25), color = self.trail_color}) 
         end
     end)
+
+    self:setStats()
 end
 
 function Player:update(dt)
@@ -167,6 +181,8 @@ function Player:update(dt)
             self:hit(30)
         end
     end
+
+    
 
     -- Boost
     self.boost = math.min(self.boost + 10*dt, self.max_boost)
@@ -270,22 +286,27 @@ function Player:die()
     camera:shake(6, 60, 0.4)
     slow(0.15, 1)
     for i = 1, love.math.random(8, 12) do self.area:addGameObject('ExplodeParticle', self.x, self.y) end
+    current_room:finish()
 end
 
 function Player:addAmmo(amount)
     self.ammo = math.min(self.ammo + amount, self.max_ammo)
+    current_room.score = current_room.score + 50
 end
 
 function Player:addHealth(amount)
     self.hp = math.min(self.max_hp or (self.hp + amount))
+    current_room.score = current_room.score + 150
 end
 
 function Player:addSP(amount)
     self.sp = self.sp + amount
+    current_room.score = current_room.score + 250
 end
 
 function Player:changeWeapon(attack)
     self:setAttack(attack)
+    current_room.score = current_room.score + 500
 end
 
 function Player:hit(damage)
@@ -321,4 +342,13 @@ function Player:removeHP(amount)
         self.hp = 0
         self:die()
     end
+end
+
+function Player:setStats()
+    self.max_hp = self.max_hp*self.hp_multiplier
+    self.hp = self.max_hp
+    self.max_ammo = self.max_ammo * self.ammo_multiplier
+    self.ammo = self.max_ammo
+    self.max_boost = self.max_boost * self.boost_multiplier
+    self.boost = self.max_boost
 end
